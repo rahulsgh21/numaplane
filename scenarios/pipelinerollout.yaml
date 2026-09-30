@@ -1,0 +1,31 @@
+apiVersion: numaplane.numaproj.io/v1alpha1
+kind: PipelineRollout
+metadata:
+  name: my-pipeline
+  namespace: numaplane-e2e
+spec:
+  pipeline:
+    spec:
+      interStepBufferServiceName: my-isbsvc
+      vertices:
+        - name: in
+          source:
+            generator:
+              # scenario: change rpu (e.g. to 10) to start a Progressive Pipeline upgrade
+              rpu: 5
+              duration: 1s
+        - name: cat
+          scale:
+            min: 1
+            max: 1
+          udf:
+            container:
+              image: quay.io/numaio/numaflow-go/map-cat:stable
+        - name: out
+          sink:
+            log: {}
+      edges:
+        - from: in
+          to: cat
+        - from: cat
+          to: out

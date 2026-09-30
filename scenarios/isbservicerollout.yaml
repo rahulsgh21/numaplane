@@ -1,0 +1,13 @@
+apiVersion: numaplane.numaproj.io/v1alpha1
+kind: ISBServiceRollout
+metadata:
+  name: my-isbsvc
+  namespace: numaplane-e2e
+spec:
+  interStepBufferService:
+    spec:
+      jetstream:
+        # scenario: bump to "2.10.11" to start a Progressive ISBService upgrade
+        version: 2.10.3
+        persistence:
+          volumeSize: 1Gi
