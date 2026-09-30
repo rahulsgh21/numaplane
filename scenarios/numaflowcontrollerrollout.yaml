@@ -5,5 +5,5 @@ metadata:
   namespace: numaplane-e2e
 spec:
   controller:
-    # scenario: bump to "1.8.3" to start a Progressive controller upgrade
-    version: "1.8.3"
+
+    version: "1.7.5"
