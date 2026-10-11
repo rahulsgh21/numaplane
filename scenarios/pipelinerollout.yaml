@@ -20,7 +20,7 @@ spec:
             max: 1
           udf:
             container:
-              image: quay.io/numaio/numaflow-go/map-cat:does-not-exist
+              image: quay.io/numaio/numaflow-go/map-cat:stable
         - name: out
           sink:
             log: {}
