@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: numaplane-e2e
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rahulsgh21/numaplane.git
+    targetRevision: local-e2e-scenarios
+    path: scenarios
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: numaplane-e2e
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

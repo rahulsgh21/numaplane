@@ -5,5 +5,4 @@ metadata:
   namespace: numaplane-e2e
 spec:
   controller:
-
-    version: "1.8.3"
+    version: "1.7.5"

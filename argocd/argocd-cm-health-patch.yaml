@@ -1,0 +1,50 @@
+data:
+  resource.customizations.health.numaplane.numaproj.io_NumaflowControllerRollout: &rolloutHealth |
+    hs = { status = "Progressing", message = "Waiting for status" }
+    if obj.status ~= nil and obj.status.phase ~= nil then
+      if obj.status.phase == "Deployed" then
+        hs.status = "Healthy"
+      elseif obj.status.phase == "Failed" then
+        hs.status = "Degraded"
+      end
+      hs.message = obj.status.phase
+      if obj.status.upgradeInProgress ~= nil and obj.status.upgradeInProgress ~= "" then
+        hs.message = obj.status.phase .. " (upgrade in progress: " .. obj.status.upgradeInProgress .. ")"
+      end
+      if obj.status.conditions ~= nil then
+        for _, condition in ipairs(obj.status.conditions) do
+          if condition.type == "ProgressiveUpgradeSucceeded" and condition.status == "False" then
+            hs.status = "Degraded"
+            hs.message = condition.message
+          end
+        end
+      end
+    end
+    return hs
+  resource.customizations.health.numaplane.numaproj.io_ISBServiceRollout: *rolloutHealth
+  resource.customizations.health.numaplane.numaproj.io_PipelineRollout: *rolloutHealth
+  resource.customizations.health.numaplane.numaproj.io_MonoVertexRollout: *rolloutHealth
+  resource.customizations.health.numaplane.numaproj.io_NumaflowController: &childHealth |
+    hs = { status = "Progressing", message = "Waiting for status" }
+    if obj.status ~= nil and obj.status.phase ~= nil then
+      if obj.status.phase == "Deployed" or obj.status.phase == "Running" then
+        hs.status = "Healthy"
+      elseif obj.status.phase == "Failed" then
+        hs.status = "Degraded"
+      end
+      hs.message = obj.status.phase
+    end
+    local labels = obj.metadata.labels or {}
+    local state = labels["numaplane.numaproj.io/upgrade-state"]
+    if state ~= nil then
+      hs.message = hs.message .. " [" .. state .. "]"
+    end
+    local result = labels["numaplane.numaproj.io/progressive-result-state"]
+    if result == "failed" then
+      hs.status = "Degraded"
+      hs.message = hs.message .. " (trial failed)"
+    end
+    return hs
+  resource.customizations.health.numaflow.numaproj.io_InterStepBufferService: *childHealth
+  resource.customizations.health.numaflow.numaproj.io_Pipeline: *childHealth
+  resource.customizations.health.numaflow.numaproj.io_MonoVertex: *childHealth
